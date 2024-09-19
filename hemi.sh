@@ -56,7 +56,7 @@ if [ "$ARCH" == "x86_64" ]; then
     wget --quiet --show-progress https://github.com/hemilabs/heminetwork/releases/download/v0.3.13/heminetwork_v0.3.13_linux_amd64.tar.gz -O heminetwork_v0.3.13_linux_amd64.tar.gz
     
     # Replace with actual checksum
-    verify_checksum "heminetwork_v0.3.13_linux_amd64.tar.gz" "SHA256"
+    verify_checksum "heminetwork_v0.4.3_darwin_amd64.tar.gz" "SHA256"
     
     tar -xzf heminetwork_v0.3.13_linux_amd64.tar.gz > /dev/null
     cd heminetwork_v0.3.13_linux_amd64 || { error "Failed to change directory."; exit 1; }
@@ -66,7 +66,7 @@ elif [ "$ARCH" == "arm64" ]; then
     wget --quiet --show-progress https://github.com/hemilabs/heminetwork/releases/download/v0.3.13/heminetwork_v0.3.13_linux_arm64.tar.gz -O heminetwork_v0.3.13_linux_arm64.tar.gz
     
     # Replace with actual checksum
-    verify_checksum "heminetwork_v0.3.13_linux_arm64.tar.gz" "SHA256"
+    verify_checksum "heminetwork_v0.4.3_darwin_amd64.tar.gz" "SHA256"
     
     tar -xzf heminetwork_v0.3.13_linux_arm64.tar.gz > /dev/null
     cd heminetwork_v0.3.13_linux_arm64 || { error "Failed to change directory."; exit 1; }
