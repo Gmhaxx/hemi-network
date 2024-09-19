@@ -40,11 +40,14 @@ install_if_missing jq
 # Function to verify checksum of downloaded file
 verify_checksum() {
     local file=$1
-    echo "$2  $file" | sha256sum -c --quiet
+    local checksum=$2
+    echo "$checksum  $file" > checksum.txt
+    sha256sum -c checksum.txt --quiet
     if [ $? -ne 0 ]; then
         error "Checksum verification failed for $file."
         exit 1
     fi
+    rm checksum.txt  # Clean up
 }
 
 # Download appropriate software based on system architecture
