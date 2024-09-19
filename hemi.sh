@@ -40,8 +40,7 @@ install_if_missing jq
 # Function to verify checksum of downloaded file
 verify_checksum() {
     local file=$1
-    local checksum=$2
-    echo "$checksum  $file" | sha256sum -c --quiet
+    echo "$2  $file" | sha256sum -c --quiet
     if [ $? -ne 0 ]; then
         error "Checksum verification failed for $file."
         exit 1
@@ -52,14 +51,20 @@ verify_checksum() {
 if [ "$ARCH" == "x86_64" ]; then
     show "Downloading for x86_64 architecture..."
     wget --quiet --show-progress https://github.com/hemilabs/heminetwork/releases/download/v0.3.13/heminetwork_v0.3.13_linux_amd64.tar.gz -O heminetwork_v0.3.13_linux_amd64.tar.gz
-    verify_checksum "heminetwork_v0.3.13_linux_amd64.tar.gz" "SHA256_CHECKSUM_HERE"
+    
+    # Replace with actual checksum
+    verify_checksum "heminetwork_v0.3.13_linux_amd64.tar.gz" "YOUR_X86_64_CHECKSUM"
+    
     tar -xzf heminetwork_v0.3.13_linux_amd64.tar.gz > /dev/null
     cd heminetwork_v0.3.13_linux_amd64 || { error "Failed to change directory."; exit 1; }
 
 elif [ "$ARCH" == "arm64" ]; then
     show "Downloading for arm64 architecture..."
     wget --quiet --show-progress https://github.com/hemilabs/heminetwork/releases/download/v0.3.13/heminetwork_v0.3.13_linux_arm64.tar.gz -O heminetwork_v0.3.13_linux_arm64.tar.gz
-    verify_checksum "heminetwork_v0.3.13_linux_arm64.tar.gz" "SHA256_CHECKSUM_HERE"
+    
+    # Replace with actual checksum
+    verify_checksum "heminetwork_v0.3.13_linux_arm64.tar.gz" "YOUR_ARM64_CHECKSUM"
+    
     tar -xzf heminetwork_v0.3.13_linux_arm64.tar.gz > /dev/null
     cd heminetwork_v0.3.13_linux_arm64 || { error "Failed to change directory."; exit 1; }
 
