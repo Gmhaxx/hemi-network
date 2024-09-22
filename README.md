@@ -10,52 +10,45 @@ ARCH=$(uname -m)
 show "Checking your system architecture: $ARCH"
 echo
 
-# Check if the required packages are installed and install if missing
-if ! command -v screen &> /dev/null; then
-    show "Screen not found. Please install screen and re-run the script."
-    exit 1
-fi
+# Check if required packages are installed
+for cmd in screen jq sha256sum wget; do
+    if ! command -v "$cmd" &> /dev/null; then
+        show "$cmd not found. Please install $cmd and re-run the script."
+        exit 1
+    fi
+done
 
-if ! command -v jq &> /dev/null; then
-    show "jq not found. Please install jq and re-run the script."
-    exit 1
-fi
-
-if ! command -v sha256sum &> /dev/null; then
-    show "sha256sum not found. Please install sha256sum and re-run the script."
-    exit 1
-fi
-
-# Define URLs for downloads and checksums
-DOWNLOAD_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/heminetwork_v0.4.3_linux_amd64.tar.gz"
-CHECKSUM_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/checksum.txt"
-
-# Download appropriate binary based on system architecture
+# Define download URLs based on architecture
 if [ "$ARCH" == "x86_64" ]; then
-    show "Downloading for x86_64 architecture..."
-    wget --quiet --show-progress "$DOWNLOAD_URL" -O heminetwork_v0.4.3_linux_amd64.tar.gz
-    wget --quiet --show-progress "$CHECKSUM_URL" -O checksum.txt
+    DOWNLOAD_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/heminetwork_v0.4.3_linux_amd64.tar.gz"
+    CHECKSUM_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/checksum.txt"
 
 elif [ "$ARCH" == "arm64" ]; then
-    show "Downloading for arm64 architecture..."
     DOWNLOAD_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/heminetwork_v0.4.3_linux_arm64.tar.gz"
-    wget --quiet --show-progress "$DOWNLOAD_URL" -O heminetwork_v0.4.3_linux_arm64.tar.gz
-    wget --quiet --show-progress "$CHECKSUM_URL" -O checksum.txt
+    CHECKSUM_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/checksum.txt"
 
 else
     show "Unsupported architecture: $ARCH"
     exit 1
 fi
 
-# Check if the checksum file is properly formatted
-if ! grep -q "heminetwork_v0.4.3" checksum.txt; then
+# Download the binary and checksum
+show "Downloading the binary..."
+wget --quiet --show-progress "$DOWNLOAD_URL" -O heminetwork.tar.gz
+wget --quiet --show-progress "$CHECKSUM_URL" -O checksum.txt
+
+# Check if the checksum file contains the correct checksum
+if ! grep -q "heminetwork" checksum.txt; then
     show "Error: Checksum file does not contain the correct checksum entry."
     exit 1
 fi
 
 # Perform checksum verification
 show "Verifying checksum..."
-if ! sha256sum -c checksum.txt --ignore-missing; then
+SHA256=$(sha256sum heminetwork.tar.gz | awk '{ print $1 }')
+EXPECTED_SHA256=$(grep "heminetwork" checksum.txt | awk '{ print $1 }')
+
+if [ "$SHA256" != "$EXPECTED_SHA256" ]; then
     show "Checksum verification failed for the downloaded file."
     exit 1
 else
@@ -64,7 +57,7 @@ fi
 
 # Extract the downloaded file
 show "Extracting downloaded archive..."
-tar -xzf heminetwork_v0.4.3_linux_amd64.tar.gz > /dev/null
+tar -xzf heminetwork.tar.gz
 if [ $? -ne 0 ]; then
     show "Failed to extract the archive. Please check the file and try again."
     exit 1
@@ -106,12 +99,12 @@ if [ "$choice" == "1" ]; then
             export POPM_BFG_URL="wss://testnet.rpc.hemi.network/v1/ws/public"
 
             # Start PoP mining in a detached screen session
-            screen -dmS airdropnode ./popmd
+            screen -dmS hemi ./popmd
             if [ $? -ne 0 ]; then
                 show "Failed to start PoP mining in screen session."
                 exit 1
             fi
-            show "PoP mining has started in the detached screen session named 'airdropnode'."
+            show "PoP mining has started in the detached screen session named 'hemi'."
         fi
     fi
 
@@ -125,12 +118,12 @@ elif [ "$choice" == "2" ]; then
     export POPM_BFG_URL="wss://testnet.rpc.hemi.network/v1/ws/public"
 
     # Start PoP mining in a detached screen session
-    screen -dmS airdropnode ./popmd
+    screen -dmS hemi ./popmd
     if [ $? -ne 0 ]; then
         show "Failed to start PoP mining in screen session."
         exit 1
     fi
-    show "PoP mining has started in the detached screen session named 'airdropnode'."
+    show "PoP mining has started in the detached screen session named 'hemi'."
 else
     show "Invalid choice."
     exit 1
