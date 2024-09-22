@@ -22,11 +22,9 @@ done
 if [ "$ARCH" == "x86_64" ]; then
     DOWNLOAD_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/heminetwork_v0.4.3_linux_amd64.tar.gz"
     CHECKSUM_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/checksum.txt"
-
 elif [ "$ARCH" == "arm64" ]; then
     DOWNLOAD_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/heminetwork_v0.4.3_linux_arm64.tar.gz"
     CHECKSUM_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.3/checksum.txt"
-
 else
     show "Unsupported architecture: $ARCH"
     exit 1
@@ -37,19 +35,22 @@ show "Downloading the binary..."
 wget --quiet --show-progress "$DOWNLOAD_URL" -O heminetwork.tar.gz
 wget --quiet --show-progress "$CHECKSUM_URL" -O checksum.txt
 
-# Check if the checksum file contains the correct checksum
-if ! grep -q "heminetwork" checksum.txt; then
-    show "Error: Checksum file does not contain the correct checksum entry."
+# Read the checksum for the downloaded file from checksum.txt
+EXPECTED_SHA256=$(grep "heminetwork_v0.4.3" checksum.txt | awk '{ print $1 }')
+
+# Verify if checksum is found
+if [ -z "$EXPECTED_SHA256" ]; then
+    show "Error: Could not find the expected checksum in checksum.txt."
     exit 1
 fi
 
-# Perform checksum verification
-show "Verifying checksum..."
-SHA256=$(sha256sum heminetwork.tar.gz | awk '{ print $1 }')
-EXPECTED_SHA256=$(grep "heminetwork" checksum.txt | awk '{ print $1 }')
+# Calculate the actual SHA256 of the downloaded file
+show "Calculating checksum for the downloaded file..."
+ACTUAL_SHA256=$(sha256sum heminetwork.tar.gz | awk '{ print $1 }')
 
-if [ "$SHA256" != "$EXPECTED_SHA256" ]; then
-    show "Checksum verification failed for the downloaded file."
+# Compare the calculated checksum with the expected checksum
+if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+    show "Checksum verification failed! Expected: $EXPECTED_SHA256 but got: $ACTUAL_SHA256."
     exit 1
 else
     show "Checksum verification passed."
@@ -99,12 +100,12 @@ if [ "$choice" == "1" ]; then
             export POPM_BFG_URL="wss://testnet.rpc.hemi.network/v1/ws/public"
 
             # Start PoP mining in a detached screen session
-            screen -dmS hemi ./popmd
+            screen -dmS airdropnode ./popmd
             if [ $? -ne 0 ]; then
                 show "Failed to start PoP mining in screen session."
                 exit 1
             fi
-            show "PoP mining has started in the detached screen session named 'hemi'."
+            show "PoP mining has started in the detached screen session named 'airdropnode'."
         fi
     fi
 
@@ -118,12 +119,12 @@ elif [ "$choice" == "2" ]; then
     export POPM_BFG_URL="wss://testnet.rpc.hemi.network/v1/ws/public"
 
     # Start PoP mining in a detached screen session
-    screen -dmS hemi ./popmd
+    screen -dmS airdropnode ./popmd
     if [ $? -ne 0 ]; then
         show "Failed to start PoP mining in screen session."
         exit 1
     fi
-    show "PoP mining has started in the detached screen session named 'hemi'."
+    show "PoP mining has started in the detached screen session named 'airdropnode'."
 else
     show "Invalid choice."
     exit 1
