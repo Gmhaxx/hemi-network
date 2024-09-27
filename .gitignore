@@ -1,0 +1,9 @@
+# .gitignore
+# Ignore environment files
+.env
+
+# Ignore private keys
+private_key.enc
+
+# Ignore local configuration files
+config.local.json
